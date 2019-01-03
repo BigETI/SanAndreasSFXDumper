@@ -1,6 +1,7 @@
 ﻿using GTAAudioSharp;
 using System;
 using System.IO;
+using System.Text;
 
 /// <summary>
 /// San andreas SFX dumper namespace
@@ -84,18 +85,18 @@ namespace SanAndreasSFXDumper
                                                                     {
                                                                         int len;
                                                                         long audio_stream_length = audio_stream.Length;
-                                                                        writer.Write("RIFF".ToCharArray());
-                                                                        writer.Write(4 + (8 + 16) + (8 + (gta_audio_stream.SampleRate * 1 * 16 / 8)));
-                                                                        writer.Write("WAVEfmt ".ToCharArray());
+                                                                        writer.Write(Encoding.ASCII.GetBytes("RIFF"));
+                                                                        writer.Write(0);
+                                                                        writer.Write(Encoding.ASCII.GetBytes("WAVEfmt "));
                                                                         writer.Write(16);
                                                                         writer.Write((short)1);
                                                                         writer.Write((short)1);
                                                                         writer.Write((int)(gta_audio_stream.SampleRate));
-                                                                        writer.Write(gta_audio_stream.SampleRate * 1 * 16 / 8);
-                                                                        writer.Write((short)(1 * 16 / 8));
+                                                                        writer.Write(gta_audio_stream.SampleRate * 2);
+                                                                        writer.Write((short)2);
                                                                         writer.Write((short)16);
-                                                                        writer.Write("data".ToCharArray());
-                                                                        writer.Write(gta_audio_stream.SampleRate * 1 * 16 / 8);
+                                                                        writer.Write(Encoding.ASCII.GetBytes("data"));
+                                                                        writer.Write((int)audio_stream_length);
                                                                         while ((len = Math.Min((int)(audio_stream_length - audio_stream.Position), buffer.Length)) > 0)
                                                                         {
                                                                             if (audio_stream.Read(buffer, 0, len) == len)
@@ -107,6 +108,8 @@ namespace SanAndreasSFXDumper
                                                                                 break;
                                                                             }
                                                                         }
+                                                                        file_stream.Seek(4L, SeekOrigin.Begin);
+                                                                        writer.Write((int)(file_stream.Length - 8));
                                                                     }
                                                                 }
                                                             }
